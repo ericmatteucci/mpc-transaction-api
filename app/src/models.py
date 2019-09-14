@@ -12,9 +12,3 @@ class Transaction(models.Model):
     balance = models.DecimalField(max_digits=15, decimal_places=2)
     category = models.CharField(max_length=30)
     notes = models.CharField(max_length=100, null=True)
-
-
-class User(models.Model):
-    username = models.CharField(max_length=50, primary_key=True)
-    email = models.EmailField()
-    password = models.CharField(max_length=50)

@@ -1,0 +1,25 @@
+<h2>
+    Showing transactions for {{username}}
+</h2>
+<span class="tab">
+    Date, Description, Paid Out, Paid In, Balance, Category, Notes
+</span><br />
+{% for res in transactions %}
+<span class="tab">
+    {{res.date}},  {{res.description}},   {{res.paid_out}},  {{res.paid_in}},   {{res.balance}},   {{res.category}},  {{res.notes}}
+</span><br />
+{% endfor %}<br />
+
+<form method="post">
+    {% csrf_token %}
+    <label>Filter by category</label><br />
+    <input type="text" name="category"><br />
+    <button type="submit" name="category_submit" value="category_submit">Submit</button>
+    <button type="submit" name="show_all" value="show_all">Show All</button>
+</form>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Download as CSV</label><br />
+    <button type="submit" name="download">Download</button>
+</form>

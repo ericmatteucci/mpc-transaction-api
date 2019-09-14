@@ -1,40 +1,38 @@
 import csv, io, datetime
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework.response import Response
-from app.src.models import Transaction, User
-from app.src.serializers import TransactionSerializer, UserSerializer
+from app.src.models import Transaction
 
 
-class TransactionViewSet(viewsets.ViewSet):
-    """
-        Use this endpoint to view all of the transactions in the system.
-    """
+@login_required(login_url='/api-auth/login/')
+def list_transactions(request):
+    list_template = 'list_transactions.html'
 
-    def list(self, request):
-        queryset = Transaction.objects.all()
-        serializer = TransactionSerializer(queryset, many=True)
-        return Response(serializer.data)
+    if request.method == 'GET' or request.POST.get('show_all'):
+        queryset = Transaction.objects.filter(
+            username=request.user.username).all().order_by('-date')
+    elif request.POST.get('category_submit'):
+        queryset = Transaction.objects.filter(
+            username=request.user.username, category=request.POST.get('category')).order_by('-date')
 
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-        Use this endpoint to view all of the users saved to the system.
-    """
-    queryset = User.objects.all().order_by('username')
-    serializer_class = UserSerializer
-
-
-def upload_transactions(request):
-    template = 'transaction_upload.html'
-
-    prompt = {
-        'message': 'Upload a transactions CSV file.',
+    params = {
+        'transactions': queryset,
+        'username': request.user.username,
     }
 
+    return render(request, list_template, params)
+
+
+@login_required(login_url='/api-auth/login/')
+def upload_transactions(request):
+    upload_template = 'transaction_upload.html'
+
     if request.method == 'GET' or 'file' not in request.FILES:
-        return render(request, template, prompt)
+        prompt = {
+            'message': 'Upload a transactions CSV file.',
+        }
+        return render(request, upload_template, prompt)
 
     csv_file = request.FILES['file']
 
@@ -52,6 +50,7 @@ def upload_transactions(request):
         paid_in_val = col[3] if col[3] != '' else 0
 
         _, row = Transaction.objects.update_or_create(
+            username=request.user.username,
             date=datetime.datetime.strptime(col[0], '%d %b %Y'),
             description=col[1],
             paid_out=paid_out_val,
@@ -61,4 +60,4 @@ def upload_transactions(request):
             notes=col[6]
         )
 
-    return render(request, template, {})
+    return render(request, upload_template, {})
