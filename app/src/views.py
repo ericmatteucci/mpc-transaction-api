@@ -88,7 +88,10 @@ def upload_transactions(request):
     csv_file = request.FILES['file']
 
     if not csv_file.name.endswith('.csv'):
-        messages.error(request, 'File is not of proper format. Please upload a CSV file.')
+        fail_message = {
+            'message': 'File is not of type CSV. Please try again.',
+        }
+        return render(request, upload_template, fail_message)
 
     data = csv_file.read().decode('UTF-8')
     data_string = io.StringIO(data)
@@ -111,4 +114,8 @@ def upload_transactions(request):
             notes=col[6]
         )
 
-    return render(request, upload_template, {})
+    success_message = {
+        'message': 'Upload Successful',
+    }
+
+    return render(request, upload_template, success_message)

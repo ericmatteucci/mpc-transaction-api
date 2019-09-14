@@ -3,21 +3,26 @@
     <head>
         <meta charset="UTF-8">
         <title>Transactions</title>
+        <style>
+        body {background-color: black;}
+        h1   {color: white; padding: 5%}
+        input {color: white; padding: 3%;}
+        form {display: flex; flex-direction: column; align-items: center;}
+        div {display: flex; flex-direction: row;}
+        p {color: white;}
+        </style>
     </head>
     <body>
-    {% if messages %}
-        {% for message in messages %}
-            <div>
-                <strong>{{message|safe}}</strong>
-            </div>
-        {% endfor %}
-    {% else %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <label>Upload a transactions file</label><br />
-            <input type="file" name="file"><br />
-            <button type="submit">Upload</button><br />
+            <h1>Upload Transactions Data</h1>
+            <div>
+                <input type="file" name="file">
+                <button type="submit">Upload</button>
+            </div>
+            <p>
+                {{message}}
+            </p>
         </form>
-    {% endif %}
     </body>
 </html>
